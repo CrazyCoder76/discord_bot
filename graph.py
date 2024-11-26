@@ -1,6 +1,6 @@
 from typing import Annotated
 from typing_extensions import TypedDict
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage
@@ -39,15 +39,15 @@ graph = graph_builder.compile(
     checkpointer = memory
 )
 
-def generate_response(message, thread_id):
+async def generate_response(message, thread_id):
     config = {"configurable": {"thread_id": thread_id}}
-    graph.update_state(config, { "session_id": thread_id})
     events = graph.stream(
         {
             "messages": (
                 "user",
                 message
-            )
+            ),
+            "session_id": thread_id
         },
         config,
         stream_mode="values",
@@ -62,5 +62,5 @@ def generate_response(message, thread_id):
 
     return answer
 
-def generate_intro():
+async def generate_intro():
     return chat_utils.generate_intro_message()

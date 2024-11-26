@@ -29,7 +29,7 @@ game_knowledge_index = os.getenv("GAME_KNOWLEDGE_INDEX")
 
 class ChatUtils:
     def __init__(self):
-        self.llm =  ChatOpenAI(model_name='gpt-4o-mini', temperature=0.7, max_tokens=200)
+        self.llm =  ChatOpenAI(model_name='gpt-4o-mini', temperature=0.7, max_tokens=100)
         self.embeddings = OpenAIEmbeddings()
         self.store = {}
     
@@ -71,6 +71,7 @@ class ChatUtils:
             "When writing informal messages:\n"
             "- Use all lowercase and bad grammar.\n"
             "- Be sarcastic, mischievous, and playful.\n\n"
+            "- 20 words tops, make it more witty, less mentions of chaos and more degenerate, purposely bad egnlish and less questions and exclamations and more direct statements that are crazy.\n"
             "- Do not use emojis.\n"
             "When writing formal or important messages:\n"
             "- Use proper grammar and structure.\n"
@@ -107,11 +108,8 @@ class ChatUtils:
         return conversational_rag_chain
     
     def get_session_history(self, session_id: str) -> ChatMessageHistory:
-        if session_id in self.store:
-            return self.store[session_id]
-        
-        self.store[session_id] = ChatMessageHistory()
-        return self.store[session_id]
+        session_history = ChatMessageHistory()
+        return session_history
     
     
     def create_history_aware_retriever(

@@ -46,7 +46,7 @@ async def on_message(message):
         question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
         chat_id = thread_id
 
-        response = generate_response(question, chat_id)
+        response = await generate_response(question, chat_id)
         if len(response) > 0:
             await message.reply(response)
         last_message_time = time.time()
@@ -54,7 +54,7 @@ async def on_message(message):
         question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
         chat_id = uuid4()
 
-        response = generate_response(question, chat_id)
+        response = await generate_response(question, chat_id)
         if len(response) > 0:
             await message.reply(response)
         thread_id = chat_id
@@ -82,7 +82,7 @@ async def periodic_messages(channel):
             last_message_time = time.time()
 
             if len(random_message) > 0:
-                random_message = generate_intro()
+                random_message = await generate_intro()
                 thread_id = uuid4()
                 await channel.send(random_message)
         
