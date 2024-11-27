@@ -31,8 +31,7 @@ vectorstore = PineconeVectorStore(index_name=chat_history_index, embedding=embed
 async def save_message_to_vector_db(message):
     metadata = {
         "author": message["author"],
-        "timestamp": str(message["timestamp"]),
-        "channel": message["channel"],
+        "timestamp": str(message["timestamp"])
     }
     vectorstore.add_texts(texts=[f"[Author: {metadata["author"]} at {metadata["timestamp"]}] Message: {message["content"]}"], metadatas=[metadata])
 

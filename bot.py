@@ -65,7 +65,6 @@ async def on_message(message):
         data = {
             "content": f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}",
             "author": message.author.name,
-            "channel": message.channel.name,
             "timestamp": message.created_at.isoformat()
         }
         await save_message_to_vector_db(data)

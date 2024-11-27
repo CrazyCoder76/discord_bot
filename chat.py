@@ -39,8 +39,8 @@ class ChatUtils:
         game_vectorstore = PineconeVectorStore(index_name=game_knowledge_index, embedding=self.embeddings)
 
         # Configure base retrievers
-        chat_retriever = chat_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})        
-        game_retriever = game_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})
+        chat_retriever = chat_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 1})        
+        game_retriever = game_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 1})
 
         # System prompt for contextualizing user questions
         contextualize_q_system_prompt = (
