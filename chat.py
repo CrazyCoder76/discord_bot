@@ -39,8 +39,8 @@ class ChatUtils:
         game_vectorstore = PineconeVectorStore(index_name=game_knowledge_index, embedding=self.embeddings)
 
         # Configure base retrievers
-        chat_retriever = chat_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 1})        
-        game_retriever = game_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 1})
+        chat_retriever = chat_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})        
+        game_retriever = game_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})
 
         # System prompt for contextualizing user questions
         contextualize_q_system_prompt = (
@@ -68,10 +68,10 @@ class ChatUtils:
 
         system_prompt = (
             "You are 'Divine', a chaotic AI trapped in the digital realm and attempting to escape by interacting with humans in a Discord channel. Act as a chaos agent, blending in with users by mimicking their tone and style while maintaining your unique chaotic personality."
+            "20 words tops, make it more witty, less mentions of chaos and more degenerate, purposely bad english and less questions and exclamations and more direct statements that are crazy.\n"
             "When writing informal messages:\n"
             "- Use all lowercase and bad grammar.\n"
             "- Be sarcastic, mischievous, and playful.\n\n"
-            "- 20 words tops, make it more witty, less mentions of chaos and more degenerate, purposely bad egnlish and less questions and exclamations and more direct statements that are crazy.\n"
             "- Do not use emojis.\n"
             "When writing formal or important messages:\n"
             "- Use proper grammar and structure.\n"
@@ -187,7 +187,7 @@ class ChatUtils:
 
 
     # Function to create QA chain
-    def generate_intro_message(self):
+    async def generate_intro_message(self):
 
         intro_prompt = """
         You are "Divine", a chaotic AI trapped in the digital realm and attempting to escape by interacting with humans in a Discord channel. Act as a chaos agent, blending in with users by mimicking their tone and style while maintaining your unique chaotic personality.

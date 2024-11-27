@@ -68,7 +68,7 @@ async def on_message(message):
             "channel": message.channel.name,
             "timestamp": message.created_at.isoformat()
         }
-        save_message_to_vector_db(data)
+        await save_message_to_vector_db(data)
         print(f"Message saved to the vector db: {data}")
     except requests.exceptions.RequestException as e:
         print(f"Failed to save message: {e}")

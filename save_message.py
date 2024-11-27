@@ -28,7 +28,7 @@ if not pc.has_index(chat_history_index):
 embedding_model = OpenAIEmbeddings()
 vectorstore = PineconeVectorStore(index_name=chat_history_index, embedding=embedding_model)
 
-def save_message_to_vector_db(message):
+async def save_message_to_vector_db(message):
     metadata = {
         "author": message["author"],
         "timestamp": str(message["timestamp"]),
