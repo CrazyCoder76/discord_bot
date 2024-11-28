@@ -41,24 +41,29 @@ async def on_message(message):
     if message.author == client.user:
         return
     
-    time_gap = time.time() - last_message_time
-    if time_gap <= 10 * 60:
-        question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
-        chat_id = thread_id
+    try:
+        time_gap = time.time() - last_message_time
+        if time_gap <= 10 * 60:
+            question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
+            chat_id = thread_id
 
-        response = await generate_response(question, chat_id)
-        if len(response) > 0:
-            await message.reply(response)
-        last_message_time = time.time()
-    elif client.user in message.mentions or client.user.name in message.content:
-        question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
-        chat_id = uuid4()
+            response = await generate_response(question, chat_id)
+            if len(response) > 0:
+                await message.reply(response)
+            last_message_time = time.time()
+        elif client.user in message.mentions or client.user.name in message.content:
+            question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
+            chat_id = uuid4()
 
-        response = await generate_response(question, chat_id)
-        if len(response) > 0:
-            await message.reply(response)
-        thread_id = chat_id
-        last_message_time = time.time()
+            response = await generate_response(question, chat_id)
+            if len(response) > 0:
+                await message.reply(response)
+            thread_id = chat_id
+            last_message_time = time.time()
+
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to respond message: {e}")
+        raise
 
     # Save data
     try:
@@ -71,6 +76,7 @@ async def on_message(message):
         print(f"Message saved to the vector db: {data}")
     except requests.exceptions.RequestException as e:
         print(f"Failed to save message: {e}")
+        raise
 
 async def periodic_messages(channel):
     global last_message_time
@@ -80,10 +86,14 @@ async def periodic_messages(channel):
         if time.time() - last_message_time > 1 * 3600:
             last_message_time = time.time()
 
-            if len(random_message) > 0:
+            try:
                 random_message = await generate_intro()
-                thread_id = uuid4()
-                await channel.send(random_message)
+                if len(random_message) > 0:
+                    thread_id = uuid4()
+                    await channel.send(random_message)
+            except requests.exceptions.RequestException as e:
+                print(f"Failed to generate intro message: {e}")
+                raise  
         
         await asyncio.sleep(random.uniform(2 * 3600, 24 * 3600))
 

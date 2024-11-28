@@ -33,5 +33,8 @@ async def save_message_to_vector_db(message):
         "author": message["author"],
         "timestamp": str(message["timestamp"])
     }
-    vectorstore.add_texts(texts=[f"[Author: {metadata["author"]} at {metadata["timestamp"]}] Message: {message["content"]}"], metadatas=[metadata])
+    vectorstore.add_texts(
+        texts=[f"[Author: {metadata['author']} at {metadata['timestamp']}] Message: {message['content']}"], 
+        metadatas=[metadata]
+    )
 
