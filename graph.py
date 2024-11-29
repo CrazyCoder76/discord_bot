@@ -66,4 +66,4 @@ async def generate_response(message, thread_id):
     return answer
 
 async def generate_intro():
-    return chat_utils.generate_intro_message()
+    return await chat_utils.generate_intro_message()
