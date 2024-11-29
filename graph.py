@@ -35,10 +35,11 @@ graph_builder = StateGraph(State)
 graph_builder.add_node("chatbot", rag_chatbot)
 graph_builder.set_entry_point("chatbot")
 graph_builder.set_finish_point("chatbot")
-memory = AsyncSqliteSaver.from_conn_string("checkpoints.sqlite")
-graph = graph_builder.compile(
-    checkpointer = memory
-)
+graph = None
+with AsyncSqliteSaver.from_conn_string(":memory:") as memory:
+    graph = graph_builder.compile(
+        checkpointer = memory
+    )
 
 async def generate_response(message, thread_id):
     config = {"configurable": {"thread_id": thread_id}}
