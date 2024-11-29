@@ -42,9 +42,8 @@ async def on_message(message):
         return
     
     try:
-        time_gap = time.time() - last_message_time
-        if time_gap <= 10 * 60:
-            question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
+        question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
+        if time.time() - last_message_time <= 10 * 60:
             chat_id = thread_id
 
             response = await generate_response(question, chat_id)
@@ -52,7 +51,6 @@ async def on_message(message):
                 await message.reply(response)
             last_message_time = time.time()
         elif client.user in message.mentions or client.user.name in message.content:
-            question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
             chat_id = uuid4()
 
             response = await generate_response(question, chat_id)
@@ -68,7 +66,7 @@ async def on_message(message):
     # Save data
     try:
         data = {
-            "content": f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}",
+            "content": question,
             "author": message.author.name,
             "timestamp": message.created_at.isoformat()
         }

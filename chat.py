@@ -29,7 +29,7 @@ game_knowledge_index = os.getenv("GAME_KNOWLEDGE_INDEX")
 
 class ChatUtils:
     def __init__(self):
-        self.llm =  ChatOpenAI(model_name='gpt-4o-mini', temperature=0.7, max_tokens=100)
+        self.llm =  ChatOpenAI(model_name='gpt-4o-mini', temperature=0.7, max_tokens=300)
         self.embeddings = OpenAIEmbeddings()
         self.store = {}
     
