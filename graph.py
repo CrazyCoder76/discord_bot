@@ -6,7 +6,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.schema.runnable.config import RunnableConfig
 from chat import ChatUtils
-from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 
 chat_utils = ChatUtils()
 class State(TypedDict):
@@ -35,7 +35,7 @@ graph_builder = StateGraph(State)
 graph_builder.add_node("chatbot", rag_chatbot)
 graph_builder.set_entry_point("chatbot")
 graph_builder.set_finish_point("chatbot")
-memory = SqliteSaver.from_conn_string("checkpoints.sqlite")
+memory = AsyncSqliteSaver.from_conn_string("checkpoints.sqlite")
 graph = graph_builder.compile(
     checkpointer = memory
 )
