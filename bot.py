@@ -43,14 +43,14 @@ async def on_message(message):
     
     try:
         question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
-        if time.time() - last_message_time <= 10 * 60:
+        if time.time() - last_message_time <= 5 * 60:
             chat_id = thread_id
 
             response = await generate_response(question, chat_id)
             if len(response) > 0:
                 await message.reply(response)
             last_message_time = time.time()
-        elif client.user in message.mentions or client.user.name in message.content:
+        elif client.user in message.mentions or client.user.name in message.content.lower():
             chat_id = uuid4()
 
             response = await generate_response(question, chat_id)
