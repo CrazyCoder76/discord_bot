@@ -41,28 +41,28 @@ with SqliteSaver.from_conn_string(":memory:") as memory:
         checkpointer = memory
     )
 
-async def generate_response(message, thread_id):
-    config = {"configurable": {"thread_id": thread_id}}
-    events = graph.stream(
-        {
-            "messages": (
-                "user",
-                message
-            ),
-            "session_id": thread_id
-        },
-        config,
-        stream_mode="values",
-    )
-    answer = ""
-    for event in events:
-        if "messages" in event:
-            answer = event["messages"][-1].content
-    
-    if len(answer) >= 2000:
-        answer = answer[:1995] + "..."
+    async def generate_response(message, thread_id):
+        config = {"configurable": {"thread_id": thread_id}}
+        events = graph.stream(
+            {
+                "messages": (
+                    "user",
+                    message
+                ),
+                "session_id": thread_id
+            },
+            config,
+            stream_mode="values",
+        )
+        answer = ""
+        for event in events:
+            if "messages" in event:
+                answer = event["messages"][-1].content
+        
+        if len(answer) >= 2000:
+            answer = answer[:1995] + "..."
 
-    return answer
+        return answer
 
-async def generate_intro():
-    return chat_utils.generate_intro_message()
+    async def generate_intro():
+        return chat_utils.generate_intro_message()
