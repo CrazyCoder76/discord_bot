@@ -225,7 +225,7 @@ class ChatUtils:
         print(f"Total time for 'send_to_both_retrievers' function: {total_duration:.4f} seconds.")
 
         if len(results) == 4:
-            return self.combine_retriever_outputs(results[0], results[1], result[2], result[3])
+            return self.combine_retriever_outputs(results[0], results[1], results[2], results[3])
         else:
             return results
 
