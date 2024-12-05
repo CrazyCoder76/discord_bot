@@ -8,7 +8,7 @@ from langchain_pinecone import PineconeVectorStore
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["PINECONE_API_KEY"] = os.getenv("PINECONE_API_KEY")
-chat_history_index = os.getenv("CHAT_HISTORY_INDEX")
+chat_history_index = os.getenv("DISCORD_HISTORY_INDEX")
 
 pc = Pinecone()
 # Create Pinecone index if it doesn't exist
