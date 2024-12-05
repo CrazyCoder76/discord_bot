@@ -24,7 +24,9 @@ from dotenv import load_dotenv
 load_dotenv()
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
 os.environ["PINECONE_API_KEY"] = os.getenv("PINECONE_API_KEY")
-chat_history_index = os.getenv("CHAT_HISTORY_INDEX")
+discord_history_index = os.getenv("DISCORD_HISTORY_INDEX")
+telegram_history_index = os.getenv("TELEGRAM_HISTORY_INDEX")
+twitter_history_index = os.getenv("TWITTER_HISTORY_INDEX")
 game_knowledge_index = os.getenv("GAME_KNOWLEDGE_INDEX")
 
 class ChatUtils:
@@ -35,12 +37,16 @@ class ChatUtils:
     
     def create_vectorstore_retriever(self):
         # Set up retrievers
-        chat_vectorstore = PineconeVectorStore(index_name=chat_history_index, embedding=self.embeddings)
+        discord_vectorstore = PineconeVectorStore(index_name=discord_history_index, embedding=self.embeddings)
+        telegram_vectorstore = PineconeVectorStore(index_name=telegram_history_index, embedding=self.embeddings)
+        twitter_vectorstore = PineconeVectorStore(index_name=twitter_history_index, embedding=self.embeddings)
         game_vectorstore = PineconeVectorStore(index_name=game_knowledge_index, embedding=self.embeddings)
 
         # Configure base retrievers
-        chat_retriever = chat_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 1})        
-        game_retriever = game_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 1})
+        discord_retriever = discord_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})
+        telegram_retriever = telegram_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})
+        twitter_retriever = twitter_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})     
+        game_retriever = game_vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 2})
 
         # System prompt for contextualizing user questions
         contextualize_q_system_prompt = (
@@ -60,7 +66,7 @@ class ChatUtils:
         )
 
         # Create a retriever that takes conversation history into account
-        history_aware_retriever = self.create_history_aware_retriever(self.llm, chat_retriever, game_retriever, contextualize_q_prompt)
+        history_aware_retriever = self.create_history_aware_retriever(self.llm, [discord_retriever, telegram_retriever, twitter_retriever, game_retriever], contextualize_q_prompt)
 
         return history_aware_retriever
 
@@ -160,8 +166,7 @@ class ChatUtils:
     def create_history_aware_retriever(
         self,
         llm: LanguageModelLike,
-        retriever_1: RetrieverLike,
-        retriever_2: RetrieverLike,
+        retrievers: List[RetrieverLike],
         prompt: BasePromptTemplate,
     ) -> RetrieverOutputLike:
         if "input" not in prompt.input_variables:
@@ -174,16 +179,16 @@ class ChatUtils:
             (
                 # If no chat history, pass input directly to both retrievers
                 lambda x: not x.get("chat_history", False),
-                lambda x: self.send_to_both_retrievers(retriever_1, retriever_2, x["input"]),
+                lambda x: self.send_to_retrievers(retrievers, x["input"]),
             ),
             # If chat history exists, use prompt, LLM, and then pass to both retrievers
-            prompt | llm | StrOutputParser() | (lambda x: self.send_to_both_retrievers(retriever_1, retriever_2, x)),
+            prompt | llm | StrOutputParser() | (lambda x: self.send_to_retrievers(retrievers, x)),
         ).with_config(run_name="chat_retriever_chain")
 
         return retrieve_documents
 
-    def send_to_both_retrievers(
-        self, retriever_1: RetrieverLike, retriever_2: RetrieverLike, input_data: str
+    def send_to_retrievers(
+        self, retrievers: List[RetrieverLike], input_data: str
     ) -> List[Dict]:
         # Send query to both retrievers in parallel, logging durations
         query = input_data
@@ -200,10 +205,10 @@ class ChatUtils:
         
         total_start_time = time.time()
 
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=4) as executor:
             future_to_retriever_name = {
                 executor.submit(run_retriever, retriever, query, retriever.__class__.__name__): retriever
-                for retriever in [retriever_1, retriever_2]
+                for retriever in retrievers
             }
 
             results = []
@@ -219,15 +224,15 @@ class ChatUtils:
         total_duration = time.time() - total_start_time
         print(f"Total time for 'send_to_both_retrievers' function: {total_duration:.4f} seconds.")
 
-        if len(results) == 2:
-            return self.combine_retriever_outputs(results[0], results[1])
+        if len(results) == 4:
+            return self.combine_retriever_outputs(results[0], results[1], result[2], result[3])
         else:
             return results
 
     def combine_retriever_outputs(
-        self, output_1: List[Document], output_2: List[Document]
+        self, output_1: List[Document], output_2: List[Document], output_3: List[Document], output_4: List[Document]
     ) -> List[Document]:
-        combined_results = output_1 + output_2
+        combined_results = output_1 + output_2 + output_3 + output_4
         return combined_results
 
 

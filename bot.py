@@ -42,7 +42,7 @@ async def on_message(message):
         return
     
     try:
-        question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content}"
+        question = f"[Author: {message.author.name} at {message.created_at.isoformat()}] Message: {message.content} Source: Discord"
         if time.time() - last_message_time <= 5 * 60:
             chat_id = thread_id
 
